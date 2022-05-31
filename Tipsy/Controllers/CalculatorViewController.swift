@@ -18,44 +18,52 @@ class CalculatorViewController: UIViewController {
     
     var tip = 0.10
     var numberOfPeople = 2
-    var totalBill = 0
-    var split = 0
+    var billTotal = 0.0
+    var finalResult = ""
 
     @IBAction func tipChanged(_ sender: UIButton) {
+        
+        //dismiss keyboard when tip percent is chosen
+        billTextField.endEditing(true)
         
         zeroPctButton.isSelected = false
         tenPctButton.isSelected = false
         twentyPctButton.isSelected = false
-        
         sender.isSelected = true
         
         let buttonTitle = sender.currentTitle ?? String()
-        
         let buttonTitleMinusPercentSign = String(buttonTitle.dropLast())
-        
         let buttonTitleAsNumber = Double(buttonTitleMinusPercentSign)!
-        
         tip = buttonTitleAsNumber / 100
-        
-        
-        
-        
     }
     
     @IBAction func stepperValueChanged(_ sender: UIStepper) {
-        
         splitNumberLabel.text = String(format: "%.0f", sender.value)
         numberOfPeople = Int(sender.value)
-        
-        
     }
     
     @IBAction func calculatePressed(_ sender: UIButton) {
         
-        print(tip)
-        print(numberOfPeople)
-        print(billTextField.text ?? "0")
+        let bill = billTextField.text!
+        
+        if bill != "" {
+            billTotal = Double(bill)!
+            let result = billTotal * (1 + tip) / Double(numberOfPeople)
+            finalResult = String(format: "%.2f", result)
+            
+            performSegue(withIdentifier: "goToResults", sender: self)
+        }
     }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+            if segue.identifier == "goToResults" {
+                let destinationVC = segue.destination as! ResultsViewController
+                
+                destinationVC.result = finalResult
+                destinationVC.numberOfPeople = numberOfPeople
+                destinationVC.tipPercentage = Int(tip * 100)
+            }
+        }
 }
 
 
